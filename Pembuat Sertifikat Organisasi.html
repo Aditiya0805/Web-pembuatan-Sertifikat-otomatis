@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pembuat Sertifikat Organisasi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Lora:ital,wght@0,400;0,600;1,400&family=Pinyon+Script&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--bg:#EDEFF2;--panel:#fff;--ink:#16202A;--mut:#5C6975;--line:#D3D9E0;--acc:#0F5C63;--on:#fff;--field:#F8F9FB;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11161B;--panel:#1A2128;--ink:#E7ECF1;--mut:#9BA8B4;--line:#2D3741;--acc:#56B6BF;--on:#08191B;--field:#141A20}}
+:root[data-theme="dark"]{--bg:#11161B;--panel:#1A2128;--ink:#E7ECF1;--mut:#9BA8B4;--line:#2D3741;--acc:#56B6BF;--on:#08191B;--field:#141A20}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Plus Jakarta Sans",system-ui,sans-serif}
+header{max-width:1280px;margin:auto;padding:20px 24px 0}
+h1{font-size:22px;margin:0 0 2px}
+header p{margin:0;color:var(--mut)}
+main{display:grid;grid-template-columns:minmax(320px,420px) 1fr;gap:20px;max-width:1280px;margin:auto;padding:16px 24px 32px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 16px 16px}
+h2{font-size:14px;margin:18px 0 0;padding-top:14px;border-top:1px solid var(--line)}
+h2:first-child{border:0;padding-top:10px;margin-top:6px}
+label{display:block;font-weight:600;font-size:13px;margin:10px 0 4px}
+input[type=text],input[type=date],input[type=number],textarea{width:100%;font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+textarea{resize:vertical}
+input[type=file]{font:inherit;font-size:13px;max-width:100%}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.hint{color:var(--mut);font-size:13px;margin:4px 0 0}
+.themes{display:flex;gap:14px;margin-top:8px}
+.sw{position:relative;display:flex;align-items:center;gap:8px;margin:0;font-weight:400;cursor:pointer}
+.sw input{position:absolute;opacity:0}
+.sw i{width:34px;height:34px;border-radius:50%;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--line)}
+.sw input:checked+i{box-shadow:0 0 0 3px var(--acc)}
+.sw input:focus-visible+i{outline:2px solid var(--acc);outline-offset:3px}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+canvas{width:100%;height:auto;display:block;border-radius:4px;box-shadow:0 1px 8px rgba(0,0,0,.18)}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.bar .pos{flex:1;text-align:center;color:var(--mut);min-width:90px}
+.btn{font:inherit;font-weight:600;padding:9px 14px;border-radius:6px;border:1px solid var(--line);background:var(--field);color:var(--ink);cursor:pointer}
+.btn.pri{background:var(--acc);color:var(--on);border-color:var(--acc)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.acts{justify-content:flex-end}
+@media(max-width:900px){main{grid-template-columns:1fr;padding:12px}header{padding:16px 12px 0}.stage{order:-1;position:static}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Pembuat sertifikat organisasi</h1>
+  <p>Isi data sekali, tempel daftar nama, lalu unduh semua sertifikat sekaligus.</p>
+</header>
+<main>
+  <div class="panel">
+    <h2>Daftar penerima</h2>
+    <label for="names">Nama penerima</label>
+    <textarea id="names" rows="6">Ahmad Fauzi
+Siti Nurhaliza
+Budi Santoso</textarea>
+    <p class="hint">Satu nama per baris. <span id="cnt"></span></p>
+
+    <h2>Kegiatan</h2>
+    <label for="org">Nama organisasi</label>
+    <input type="text" id="org" value="Himpunan Mahasiswa Informatika">
+    <div class="g2">
+      <div><label for="title">Judul</label><input type="text" id="title" value="Sertifikat"></div>
+      <div><label for="sub">Jenis</label><input type="text" id="sub" value="Partisipasi"></div>
+    </div>
+    <label for="desc">Keterangan</label>
+    <textarea id="desc" rows="3">telah berpartisipasi aktif sebagai peserta dalam kegiatan Seminar Nasional Teknologi 2026 yang diselenggarakan oleh Himpunan Mahasiswa Informatika.</textarea>
+    <div class="g2">
+      <div><label for="place">Tempat</label><input type="text" id="place" value="Bandar Lampung"></div>
+      <div><label for="date">Tanggal</label><input type="date" id="date"></div>
+    </div>
+
+    <h2>Nomor sertifikat</h2>
+    <div class="g2">
+      <div><label for="fmt">Format</label><input type="text" id="fmt" value="{no}/SERT/HMIF/X/2026"></div>
+      <div><label for="start">Mulai dari</label><input type="number" id="start" value="1" min="0"></div>
+    </div>
+    <p class="hint">{no} diganti nomor urut otomatis (001, 002, …). Kosongkan format untuk menyembunyikan nomor.</p>
+
+    <h2>Penandatangan</h2>
+    <div class="g2">
+      <div><label for="s1n">Nama 1</label><input type="text" id="s1n" value="Rizky Pratama"></div>
+      <div><label for="s1j">Jabatan 1</label><input type="text" id="s1j" value="Ketua Umum"></div>
+      <div><label for="s2n">Nama 2</label><input type="text" id="s2n" value="Dewi Lestari"></div>
+      <div><label for="s2j">Jabatan 2</label><input type="text" id="s2j" value="Sekretaris Umum"></div>
+    </div>
+    <p class="hint">Kosongkan nama untuk menyembunyikan penandatangan.</p>
+
+    <h2>Tampilan</h2>
+    <div class="themes" role="radiogroup" aria-label="Warna sertifikat">
+      <label class="sw"><input type="radio" name="theme" value="biru" checked><i style="background:linear-gradient(135deg,#1B2A4A 50%,#B8913A 50%)"></i>Biru</label>
+      <label class="sw"><input type="radio" name="theme" value="hijau"><i style="background:linear-gradient(135deg,#0F4D3F 50%,#B08A2E 50%)"></i>Hijau</label>
+      <label class="sw"><input type="radio" name="theme" value="marun"><i style="background:linear-gradient(135deg,#6B1D2C 50%,#BE9A5B 50%)"></i>Marun</label>
+    </div>
+    <label for="logo">Logo organisasi (opsional)</label>
+    <input type="file" id="logo" accept="image/*">
+  </div>
+
+  <div class="stage">
+    <canvas id="cv" aria-label="Pratinjau sertifikat"></canvas>
+    <div class="bar">
+      <button class="btn" id="prev" aria-label="Sebelumnya">‹ Sebelumnya</button>
+      <span class="pos" id="pos"></span>
+      <button class="btn" id="next" aria-label="Berikutnya">Berikutnya ›</button>
+    </div>
+    <div class="bar acts">
+      <button class="btn" id="png">Unduh PNG (yang ini)</button>
+      <button class="btn pri" id="pdf">Unduh semua (PDF)</button>
+    </div>
+    <p class="hint" id="st" role="status" aria-live="polite"></p>
+  </div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const F=['org','title','sub','desc','place','date','s1n','s1j','s2n','s2j','fmt','start','names'];
+const TH={biru:{p:'#1B2A4A',a:'#B8913A',bg:'#FDFBF5'},hijau:{p:'#0F4D3F',a:'#B08A2E',bg:'#FBFCF8'},marun:{p:'#6B1D2C',a:'#BE9A5B',bg:'#FFFCF7'}};
+const W=1754,H=1240,K='sertifikat.v1';
+let cur=0,logo=null,dl=null,busy=false;
+const cv=$('cv'),cx=cv.getContext('2d');cv.width=W;cv.height=H;
+
+const d0=new Date();$('date').value=d0.getFullYear()+'-'+String(d0.getMonth()+1).padStart(2,'0')+'-'+String(d0.getDate()).padStart(2,'0');
+try{const o=JSON.parse(localStorage.getItem(K)||'null');if(o){F.forEach(f=>{if(o[f]!=null)$(f).value=o[f]});const r=document.querySelector('input[name=theme][value="'+o.theme+'"]');if(r)r.checked=true}}catch(e){}
+function persist(){try{const o={theme:theme()};F.forEach(f=>o[f]=$(f).value);localStorage.setItem(K,JSON.stringify(o))}catch(e){}}
+
+const theme=()=>document.querySelector('input[name=theme]:checked').value;
+const list=()=>$('names').value.split('\n').map(s=>s.trim()).filter(Boolean);
+const fmtDate=v=>{if(!v)return'';const[y,m,d]=v.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})};
+const number=i=>{const f=$('fmt').value.trim();if(!f)return'';return f.replace('{no}',String((+$('start').value||0)+i).padStart(3,'0'))};
+const safe=s=>s.replace(/[\\/:*?"<>|]/g,'').slice(0,80);
+const say=m=>$('st').textContent=m;
+
+function wrap(c,text,maxW){const out=[];text.split('\n').forEach(p=>{let line='';p.split(' ').forEach(w=>{const t=line?line+' '+w:w;if(c.measureText(t).width>maxW&&line){out.push(line);line=w}else line=t});out.push(line)});return out}
+
+function draw(c,name,i){
+  const t=TH[theme()],V=id=>$(id).value.trim();
+  c.clearRect(0,0,W,H);c.fillStyle=t.bg;c.fillRect(0,0,W,H);
+  c.strokeStyle=t.p;c.lineWidth=14;c.strokeRect(46,46,W-92,H-92);
+  c.strokeStyle=t.a;c.lineWidth=3;c.strokeRect(74,74,W-148,H-148);
+  [[74,74],[W-74,74],[74,H-74],[W-74,H-74]].forEach(([x,y])=>{c.save();c.translate(x,y);c.rotate(Math.PI/4);c.fillStyle=t.bg;c.strokeStyle=t.a;c.lineWidth=3;c.fillRect(-13,-13,26,26);c.strokeRect(-13,-13,26,26);c.restore()});
+  c.textAlign='center';c.textBaseline='alphabetic';
+  const T=(s,y,font,col,sp=0,x=W/2)=>{c.font=font;c.fillStyle=col;c.letterSpacing=sp+'px';c.fillText(s,x+sp/2,y);c.letterSpacing='0px'};
+  if(logo){const h=90,w=Math.min(logo.width*h/logo.height,300);c.drawImage(logo,(W-w)/2,110,w,h)}
+  T(V('org').toUpperCase(),logo?252:222,'600 30px Lora, serif',t.p,5);
+  T(V('title').toUpperCase(),360,'600 100px Cinzel, serif',t.p,14);
+  T(V('sub').toUpperCase(),412,'600 28px Lora, serif',t.a,10);
+  const no=number(i);if(no)T('Nomor: '+no,458,'400 26px Lora, serif','#666',1);
+  T('Diberikan kepada',530,'italic 400 30px Lora, serif','#555');
+  let s=120;const nf=()=>`${s}px "Pinyon Script", cursive`;c.font=nf();
+  while(c.measureText(name).width>1250&&s>40){s-=4;c.font=nf()}
+  T(name,642,nf(),t.p);
+  c.strokeStyle=t.a;c.lineWidth=2;c.beginPath();c.moveTo(W/2-380,672);c.lineTo(W/2+380,672);c.stroke();
+  c.font='400 32px Lora, serif';
+  wrap(c,V('desc'),1150).slice(0,4).forEach((l,k)=>T(l,738+k*46,'400 32px Lora, serif','#333'));
+  const pd=[V('place'),fmtDate(V('date'))].filter(Boolean).join(', ');if(pd)T(pd,938,'400 28px Lora, serif','#444');
+  const S=[[V('s1n'),V('s1j')],[V('s2n'),V('s2j')]].filter(x=>x[0]);
+  S.forEach((x,k)=>{
+    const px=S.length==1?W/2:W*(k?0.7:0.3);
+    c.strokeStyle='#444';c.lineWidth=2;c.beginPath();c.moveTo(px-190,1068);c.lineTo(px+190,1068);c.stroke();
+    T(x[0],1102,'600 30px Lora, serif','#222',0,px);
+    if(x[1])T(x[1],1134,'400 26px Lora, serif','#555',0,px);
+  });
+}
+
+function show(){
+  const L=list();cur=Math.min(cur,Math.max(L.length-1,0));
+  draw(cx,L[cur]||'Nama Penerima',cur);
+  $('pos').textContent=L.length?`${cur+1} / ${L.length} · ${L[cur]}`:'Belum ada nama';
+  $('cnt').textContent=L.length+' penerima.';
+  $('prev').disabled=cur<=0;$('next').disabled=cur>=L.length-1;
+  $('png').disabled=$('pdf').disabled=!L.length||busy;
+}
+
+async function save(name,data){
+  if(!dl){say('Unduhan tidak tersedia di tampilan ini.');return}
+  try{await dl.save({filename:name,data});say('Siap disimpan: '+name)}
+  catch(e){say(e&&e.code==='declined'?'Unduhan dibatalkan.':'Unduhan gagal. Coba lagi.')}
+}
+
+$('png').onclick=async()=>{
+  const L=list();if(!L.length)return;draw(cx,L[cur],cur);
+  const b=await new Promise(r=>cv.toBlob(r,'image/png'));
+  save('Sertifikat - '+safe(L[cur])+'.png',b);
+};
+$('pdf').onclick=async()=>{
+  const L=list();if(!L.length)return;
+  if(!window.jspdf){say('Pustaka PDF belum termuat. Muat ulang halaman.');return}
+  busy=true;show();
+  const off=document.createElement('canvas');off.width=W;off.height=H;const oc=off.getContext('2d');
+  const doc=new jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  for(let i=0;i<L.length;i++){
+    say(`Menyusun ${i+1} dari ${L.length}…`);
+    draw(oc,L[i],i);if(i)doc.addPage();
+    doc.addImage(off.toDataURL('image/jpeg',.92),'JPEG',0,0,297,210);
+    await new Promise(r=>setTimeout(r));
+  }
+  busy=false;show();
+  await save('Sertifikat.pdf',doc.output('blob'));
+};
+$('prev').onclick=()=>{cur=Math.max(0,cur-1);show()};
+$('next').onclick=()=>{cur++;show()};
+$('logo').onchange=e=>{
+  const f=e.target.files[0];if(!f){logo=null;show();return}
+  const r=new FileReader();
+  r.onload=()=>{const im=new Image();im.onload=()=>{logo=im;show()};im.src=r.result};
+  r.readAsDataURL(f);
+};
+document.querySelectorAll('input:not([type=file]),textarea').forEach(el=>el.addEventListener('input',()=>{show();persist()}));
+
+show();
+Promise.all(['600 40px Cinzel','400 30px Lora','italic 400 30px Lora','600 30px Lora','400 100px "Pinyon Script"'].map(f=>document.fonts.load(f))).then(show).catch(()=>{});
+(async()=>{try{dl=await window.claude.use('downloads')}catch(e){dl=null}})();
+</script>
+</body>
+</html>
